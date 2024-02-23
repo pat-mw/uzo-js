@@ -589,6 +589,8 @@ toastr.options.hideMethod = "fadeOut"; // Animation for hiding toast messages
 window.onload = function() {
     checkActiveTabFromUrl();
     window.artistModalClick = artistModalClick;
+    window.requestedArtists = [];
+    updateCounter();
 };
 // --- Process Document Ready ----
 $(document).ready(function() {
@@ -771,8 +773,8 @@ function artistModalClick(slug = "", name = "", type = "", image = "", imageBack
     let spotifyEmbedEl = $("[artist-modal-spotify-embed]");
     let soundcloudEmbedEl = $("[artist-modal-soundcloud-embed]");
     let bioEl = $("[artist-modal-bio]");
-    let btnModalAddArtist = $("[data-btn-modal-add-artist]");
-    let formFieldArtistRequests = $("[form-field-artist-requests]");
+    let btnModalAddArtist = $("[btn-modal-add-artist]");
+    let btnModalRemoveArtist = $("[btn-modal-remove-artist]");
     var placeholderUrl = "https://assets-global.website-files.com/plugins/Basic/assets/placeholder.60f9b1840c.svg";
     console.log(`opening artist modal for: ${name}`);
     var imageChoice = "";
@@ -817,17 +819,109 @@ function artistModalClick(slug = "", name = "", type = "", image = "", imageBack
     videoIframeContainerEl.hide();
     // Remove any previously attached click event handlers
     btnModalAddArtist.off("click");
+    btnModalRemoveArtist.off("click");
+    // Add a click event handler using jQuery
+    btnModalRemoveArtist.on("click", function() {
+        console.log(`Removing artist: ${name} from booking form`);
+        // Remove artist from requestedArtists
+        removeArtist(slug);
+        btnModalRemoveArtist.hide();
+        btnModalAddArtist.show();
+    });
     // Add a click event handler using jQuery
     btnModalAddArtist.on("click", function() {
         console.log(`Adding artist: ${name} to booking form`);
-        // Handle form field
-        formFieldArtistRequests.val(formFieldArtistRequests.val() + `${name}, `);
-        toastr.success(`Added artist: ${name} to booking form`);
+        // Add artist to requestedArtists
+        addArtist(name, imageChoice, bioExtracted, type, slug);
+        btnModalAddArtist.hide();
+        btnModalRemoveArtist.show();
     });
+    // Handle Remove Artist Button
+    // Check if the artist is already in the array
+    let artistExists = window.requestedArtists.some((artist)=>artist.slug === slug);
+    if (artistExists) {
+        btnModalAddArtist.hide();
+        btnModalRemoveArtist.show();
+    } else {
+        btnModalAddArtist.show();
+        btnModalRemoveArtist.hide();
+    }
     // SHOW MODAL
     console.log(`clicking modal btn for: ${name}`);
     document.getElementById("artist-modal-open-btn").click();
 }
+// --- Handle Artist Request Variable ---
+// Function to add an artist
+function addArtist(name, image_url, bio, type, slug) {
+    // Check if the artist is already in the array
+    let artistExists = window.requestedArtists.some((artist)=>artist.slug === slug);
+    if (artistExists) toastr.error(`Artist: ${name} is already added to the booking form`);
+    else {
+        window.requestedArtists.push({
+            name: name,
+            image_url: image_url,
+            bio: bio,
+            type: type,
+            slug: slug
+        });
+        updateCounter();
+        syncFormWithRequestedArtists();
+        toastr.success(`Added artist: ${name} to booking form`);
+    }
+}
+// Function to remove an artist
+function removeArtist(slug) {
+    window.requestedArtists = window.requestedArtists.filter((artist)=>artist.slug !== slug);
+    updateCounter();
+    syncFormWithRequestedArtists();
+    toastr.warning(`Removed artist from booking form`);
+}
+// Function to sync form field with requestedArtists
+function syncFormWithRequestedArtists() {
+    let formFieldArtistRequests = $("[form-field-artist-requests]");
+    let artistNames = window.requestedArtists.map((artist)=>artist.name);
+    formFieldArtistRequests.val(artistNames.join(", "));
+}
+// count number of selected artists
+// Function to update the counter
+function updateCounter() {
+    let count = window.requestedArtists.length;
+    let pills = $("[btn-agency-pill]");
+    let pillTexts = $("[btn-agency-pill-text]");
+    // Update the text in each pill
+    pillTexts.text(count);
+    // Show or hide the pills based on the count
+    if (count > 0) pills.css("display", "flex");
+    else pills.css("display", "none");
+}
+// --- Form Artists Auto-Complete ---
+// --- Function to get all artist names from CMS collection ---
+// Get all the artist names from the document
+let allDisplayedArtists = $("[artist-collection-item]").map(function() {
+    return $(this);
+}).get();
+// --- Function to initialize the autocomplete widget ---
+function initialiseAutocomplete() {
+    let formFieldArtistRequests = $("[form-field-artist-requests]");
+    let artistNames = allDisplayedArtists.map(function() {
+        return $(this).find("[artist-name]").text();
+    });
+    formFieldArtistRequests.autocomplete({
+        source: artistNames,
+        select: function(event, ui) {
+            // Add the selected artist to the window.requestedArtists array
+            let selectedArtistName = ui.item.value;
+            let selectedArtist = allDisplayedArtists.filter(function() {
+                return $(this).find("[artist-name]").text() === selectedArtistName;
+            });
+            addArtist(selectedArtistName, selectedArtist.find("[artist-image]").attr("src"), selectedArtist.find("[artist-bio]").text(), selectedArtist.find("[artist-type]").text(), selectedArtist.find("[artist-bio]").attr("artist-bio") // Get the slug from the 'artist-bio' attribute
+            );
+            // Clear the input field
+            $(this).val("");
+            return false;
+        }
+    });
+} // --- Handle Form Sections Reveal / Hide ---
 
 },{}]},["hbj89","igcvL"], "igcvL", "parcelRequire9abf")
 
