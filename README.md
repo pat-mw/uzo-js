@@ -14,6 +14,8 @@ There are two modes when using this repo.
 Whilst working in development mode: Do *not* publish the site to main domain, this will cause unexpected issues
 
 ## How to use
+
+### Development
 Whilst developing: Your custom code will be written in the 'app.js' file ONLY
 There might be a way of doing this different but for now, our server which is executed using parcel, is only publishing the app.js file
 
@@ -26,6 +28,7 @@ in webflow: rather than coding inside the editor, paste the following script tag
 <script defer src="http://localhost:1234/app.js"></script>
 ```
 
+### Production (Deployment)
 When you are ready to push to production: Move your JS code to a new file inside the 'pages' folder & create a PR to the main branch of this repo.
 
 When the code is live on GitHub: you can replace the script tag:
