@@ -1,8 +1,8 @@
 5921
 36/home/uzo/dev/farrago-js/.prettierrc1708645403035702982 0
-29/home/uzo/dev/farrago-js/dist1708714680988602119 1
+29/home/uzo/dev/farrago-js/dist1708746657886505921 1
 40/home/uzo/dev/farrago-js/pages/agency.js1708714747072604188 0
-30/home/uzo/dev/farrago-js/pages1708644068462662303 1
+30/home/uzo/dev/farrago-js/pages1708714833171606984 1
 56/home/uzo/dev/farrago-js/node_modules/.package-lock.json1708644072322662413 0
 65/home/uzo/dev/farrago-js/node_modules/.bin/update-browserslist-db1708644072005662404 0
 84/home/uzo/dev/farrago-js/node_modules/.bin/node-gyp-build-optional-packages-optional1708644072005662404 0
@@ -1761,7 +1761,7 @@
 79/home/uzo/dev/farrago-js/node_modules/caniuse-lite/data/features/geolocation.js1708644055566661922 0
 76/home/uzo/dev/farrago-js/node_modules/caniuse-lite/data/features/temporal.js1708644056137661940 0
 69/home/uzo/dev/farrago-js/node_modules/@parcel/core/lib/projectPath.js1708644060234662063 0
-40/home/uzo/dev/farrago-js/dist/app.js.map1708714680987602119 0
+40/home/uzo/dev/farrago-js/dist/app.js.map1708746657886505921 0
 64/home/uzo/dev/farrago-js/node_modules/@parcel/workers/index.d.ts1708644056988661966 0
 63/home/uzo/dev/farrago-js/node_modules/lines-and-columns/LICENSE1708644054373661886 0
 64/home/uzo/dev/farrago-js/node_modules/@swc/helpers/src/index.mjs1708644055407661918 0
@@ -2464,7 +2464,7 @@
 72/home/uzo/dev/farrago-js/node_modules/@parcel/core/lib/CommittedAsset.js1708644059940662054 0
 64/home/uzo/dev/farrago-js/node_modules/@parcel/graph/src/index.js1708644058674662017 0
 62/home/uzo/dev/farrago-js/node_modules/csso/cjs/replace/Url.cjs1708644054722661897 0
-44/home/uzo/dev/farrago-js/doc/doc-filelist.js1708706438995350533 0
+44/home/uzo/dev/farrago-js/doc/doc-filelist.js1708740632544536997 0
 111/home/uzo/dev/farrago-js/node_modules/@parcel/optimizer-svgo/node_modules/css-tree/lib/syntax/node/Dimension.js1708644060329662066 0
 102/home/uzo/dev/farrago-js/node_modules/@parcel/optimizer-htmlnano/node_modules/css-select/lib/sort.d.ts1708644060221662063 0
 67/home/uzo/dev/farrago-js/node_modules/@swc/helpers/src/_type_of.mjs1708644055405661918 0
@@ -2629,7 +2629,7 @@
 111/home/uzo/dev/farrago-js/node_modules/@parcel/optimizer-htmlnano/node_modules/svgo/plugins/removeUselessDefs.js1708644060236662063 0
 67/home/uzo/dev/farrago-js/node_modules/@parcel/profiler/package.json1708644057041661967 0
 84/home/uzo/dev/farrago-js/node_modules/@parcel/core/lib/requests/AssetGraphRequest.js1708644059905662053 0
-31/home/uzo/dev/farrago-js/app.js1708714680786602113 0
+31/home/uzo/dev/farrago-js/app.js1708746657849505920 0
 109/home/uzo/dev/farrago-js/node_modules/@parcel/optimizer-htmlnano/node_modules/css-tree/lib/syntax/node/Url.js1708644060459662070 0
 84/home/uzo/dev/farrago-js/node_modules/caniuse-lite/data/features/publickeypinning.js1708644055952661934 0
 107/home/uzo/dev/farrago-js/node_modules/@parcel/optimizer-htmlnano/node_modules/csso/lib/clean/Declaration.js1708644060169662061 0
@@ -2773,7 +2773,7 @@
 87/home/uzo/dev/farrago-js/node_modules/@parcel/core/test/fixtures/invalid-source-missing1708644060434662069 1
 71/home/uzo/dev/farrago-js/node_modules/@parcel/transformer-babel/LICENSE1708644058077661999 0
 58/home/uzo/dev/farrago-js/node_modules/yallist/package.json1708644054410661887 0
-42/home/uzo/dev/farrago-js/doc/doc-script.js1708706439021350534 0
+42/home/uzo/dev/farrago-js/doc/doc-script.js1708740632636537000 0
 105/home/uzo/dev/farrago-js/node_modules/@parcel/optimizer-htmlnano/node_modules/css-tree/lib/utils/clone.js1708644060179662061 0
 120/home/uzo/dev/farrago-js/node_modules/@parcel/optimizer-svgo/node_modules/css-tree/lib/syntax/pseudo/nth-last-of-type.js1708644060450662069 0
 118/home/uzo/dev/farrago-js/node_modules/@parcel/optimizer-htmlnano/node_modules/css-tree/lib/syntax/node/SelectorList.js1708644060448662069 0
@@ -2923,7 +2923,7 @@
 47/home/uzo/dev/farrago-js/node_modules/@mischnic1708644053914661872 1
 87/home/uzo/dev/farrago-js/node_modules/csso/node_modules/css-tree/lib/convertor/index.js1708644055119661909 0
 94/home/uzo/dev/farrago-js/node_modules/@parcel/optimizer-svgo/node_modules/csso/lib/restructure1708644059912662053 1
-42/home/uzo/dev/farrago-js/doc/doc-style.css1708706439035350534 0
+42/home/uzo/dev/farrago-js/doc/doc-style.css1708740632670537001 0
 108/home/uzo/dev/farrago-js/node_modules/@parcel/optimizer-svgo/node_modules/svgo/plugins/removeRasterImages.js1708644060131662060 0
 67/home/uzo/dev/farrago-js/node_modules/@parcel/cache/src/IDBCache.js1708644056264661944 0
 72/home/uzo/dev/farrago-js/node_modules/css-tree/cjs/syntax/node/Value.cjs1708644054957661904 0
@@ -4953,7 +4953,7 @@
 72/home/uzo/dev/farrago-js/node_modules/caniuse-lite/data/features/opus.js1708644055940661934 0
 75/home/uzo/dev/farrago-js/node_modules/caniuse-lite/data/features/outline.js1708644055941661934 0
 59/home/uzo/dev/farrago-js/node_modules/argparse/package.json1708644054551661891 0
-36/home/uzo/dev/farrago-js/dist/app.js1708714680983602119 0
+36/home/uzo/dev/farrago-js/dist/app.js1708746657885505921 0
 78/home/uzo/dev/farrago-js/node_modules/utility-types/dist/functional-helpers.js1708644054871661901 0
 90/home/uzo/dev/farrago-js/node_modules/caniuse-lite/data/features/page-transition-events.js1708644055943661934 0
 76/home/uzo/dev/farrago-js/node_modules/caniuse-lite/data/features/passkeys.js1708644055945661934 0

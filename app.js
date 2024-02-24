@@ -18,11 +18,14 @@ $(document).ready(function () {
     handleOtherInputs();
     handleSectionArtistScroll();
     handleTabScroll();
+    handleFormSectionsDynamic();
 });
 
 // --- DOM Content Loaded ---
 document.addEventListener("DOMContentLoaded", function () {
     prepateCMSLoadFunctions();
+    textVenueAnimation();
+    $("[form-first-btn-enabled]").hide();
 });
 
 // --- Check Active Tab from URL Hash ---
@@ -256,6 +259,11 @@ function artistModalClick(
     let bioEl = $("[artist-modal-bio]");
     let btnModalAddArtist = $("[btn-modal-add-artist]");
     let btnModalRemoveArtist = $("[btn-modal-remove-artist]");
+    
+    // Reset embeds
+    // spotifyEmbedEl.attr("src", spotifyEmbedEl.attr("src"));
+    // soundcloudEmbedEl.attr("src", "");
+    videoEmbedEl.attr("srcdoc", "");
 
     var placeholderUrl =
         "https://assets-global.website-files.com/plugins/Basic/assets/placeholder.60f9b1840c.svg";
@@ -280,8 +288,8 @@ function artistModalClick(
         spotifyEmbedEl.hide();
     } else {
         console.log(`spotifyEmbed: ${spotifyEmbed}`);
-        spotifyEmbedEl.show();
         spotifyEmbedEl.attr("src", spotifyEmbed);
+        spotifyEmbedEl.show();
     }
 
     if (soundcloudEmbed === "") {
@@ -317,6 +325,7 @@ function artistModalClick(
         videoEmbedEl.attr("srcdoc", srcDoc);
     } else {
         // If attr_videoId is empty, hide the iframe container
+
         videoIframeContainerEl.hide();
     }
 
@@ -382,9 +391,13 @@ function addArtist(name, image_url, bio, type, slug) {
         });
         updateCounter();
         syncFormWithRequestedArtists();
+        handleFormArtistCards();
 
         toastr.success(`Added artist: ${name} to booking form`);
     }
+
+    let radioButton = $('input[name="Type-of-Enquiry"][value="Artist Booking"]');
+    radioButton.click();
 }
 
 // Function to remove an artist
@@ -394,6 +407,7 @@ function removeArtist(slug) {
     );
     updateCounter();
     syncFormWithRequestedArtists();
+    handleFormArtistCards();
     toastr.warning(`Removed artist from booking form`);
 }
 
@@ -431,37 +445,78 @@ let allDisplayedArtists = $("[artist-collection-item]")
     })
     .get();
 
-// --- Function to initialize the autocomplete widget ---
-function initialiseAutocomplete() {
-    let formFieldArtistRequests = $("[form-field-artist-requests]");
-    let artistNames = allDisplayedArtists.map(function () {
-        return $(this).find("[artist-name]").text();
-    });
+// --- Handle Form Sections Reveal / Hide ---
+function handleFormSectionsDynamic() {
+    // Add an event listener to the radio group
+    $('input[name="Type-of-Enquiry"]').change(function () {
+        console.log("Type of Enquiry changed. value: ", $(this).val());
+        let value = $(this).val();
 
-    formFieldArtistRequests.autocomplete({
-        source: artistNames,
-        select: function (event, ui) {
-            // Add the selected artist to the window.requestedArtists array
-            let selectedArtistName = ui.item.value;
-            let selectedArtist = allDisplayedArtists.filter(function () {
-                return (
-                    $(this).find("[artist-name]").text() === selectedArtistName
-                );
-            });
+        if (value === "Artist Booking") {
+            console.log("Artist Booking selected");
+            $("[form-section-artist-bookings]").show();
+            $("[form-section-event-services]").hide();
+        } else if (value === "Event Services") {
+            console.log("Event Services selected");
+            $("[form-section-artist-bookings]").hide();
+            $("[form-section-event-services]").show();
+        } else if (value === "Both") {
+            console.log("Both selected");
+            $("[form-section-artist-bookings]").show();
+            $("[form-section-event-services]").show();
+        }
 
-            addArtist(
-                selectedArtistName,
-                selectedArtist.find("[artist-image]").attr("src"),
-                selectedArtist.find("[artist-bio]").text(),
-                selectedArtist.find("[artist-type]").text(),
-                selectedArtist.find("[artist-bio]").attr("artist-bio") // Get the slug from the 'artist-bio' attribute
-            );
-
-            // Clear the input field
-            $(this).val("");
-            return false;
-        },
+        $("[form-first-btn]").hide();
+        $("[form-first-btn-enabled]").show();
     });
 }
 
-// --- Handle Form Sections Reveal / Hide ---
+// --- Text Venue Animation ---
+function textVenueAnimation() {
+    const words = document.querySelectorAll(".dynamic-text h3");
+    let currentIndex = 0;
+
+    function updateText() {
+        words.forEach((word) => word.classList.remove("active"));
+        words[currentIndex].classList.add("active");
+
+        currentIndex = (currentIndex + 1) % words.length;
+    }
+
+    setInterval(updateText, 2000);
+}
+
+// --- Syncs artist cards in form with window.requestedArtists ---
+function handleFormArtistCards() {
+     // Clear the [form-artist-wrapper]
+    $("[form-artist-wrapper]").empty();
+
+    // For each artist in requestedArtists
+    window.requestedArtists.forEach(function(artist) {
+        // Make a copy of the element with attribute [form-artist-template]
+        let template = $("[form-artist-template]").first().clone();
+
+        // Remove the [form-artist-template] attribute from the copy
+        template.removeAttr("form-artist-template");
+
+        // Search within this copy for attributes and set their values
+        template.find("[form-artist-template-image]").attr("src", artist.image_url);
+        template.find("[form-artist-template-name]").text(artist.name);
+        template.find("[form-artist-template-type]").text(artist.type);
+
+        // Add event listener to remove button
+        template.find("[form-artist-template-remove]").on("click", function() {
+            removeArtist(artist.slug);
+        });
+
+        // Set display: block on the template
+        template.css("display", "grid");
+
+        // Append the template to the DOM
+        $("[form-artist-wrapper]").append(template);
+
+    });
+
+    // Set display: none on the first template
+    $("[form-artist-template]").first().css("display", "none");
+}
