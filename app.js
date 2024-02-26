@@ -4,6 +4,7 @@ toastr.options.timeOut = 3000; // Timeout in milliseconds
 toastr.options.positionClass = "toast-bottom-center"; // Position bottom middle
 toastr.options.showMethod = "fadeIn"; // Animation for showing toast messages
 toastr.options.hideMethod = "fadeOut"; // Animation for hiding toast messages
+// toastr.options.maxItems = 3; // Maximum number of toasts visible at one time
 
 // --- Handle Window Load ---
 window.onload = function () {
@@ -11,6 +12,7 @@ window.onload = function () {
     window.artistModalClick = artistModalClick;
     window.requestedArtists = [];
     updateCounter();
+    handleFormArtistCards();
 };
 
 // --- Process Document Ready ----
@@ -19,6 +21,8 @@ $(document).ready(function () {
     handleSectionArtistScroll();
     handleTabScroll();
     handleFormSectionsDynamic();
+    prepareAutocompleteForm();
+    prepareStatsSectionAnimation();
 });
 
 // --- DOM Content Loaded ---
@@ -247,7 +251,8 @@ function artistModalClick(
     imageBackup = "",
     spotifyEmbed = "",
     soundcloudEmbed = "",
-    videoEmbed = ""
+    videoEmbed = "",
+    spotifyLink = "",
 ) {
     let imageEl = $("[artist-modal-image]");
     let nameEl = $("[artist-modal-name]");
@@ -411,6 +416,15 @@ function removeArtist(slug) {
     toastr.warning(`Removed artist from booking form`);
 }
 
+// Function to clear all artists
+function clearArtists() {
+    window.requestedArtists = [];
+    updateCounter();
+    syncFormWithRequestedArtists();
+    handleFormArtistCards();
+    toastr.warning(`Cleared all artists from booking form`);
+}
+
 // Function to sync form field with requestedArtists
 function syncFormWithRequestedArtists() {
     let formFieldArtistRequests = $("[form-field-artist-requests]");
@@ -447,10 +461,22 @@ let allDisplayedArtists = $("[artist-collection-item]")
 
 // --- Handle Form Sections Reveal / Hide ---
 function handleFormSectionsDynamic() {
+    // Handle 'clear' button click
+    $("[fx-element='clearRequestedArtists']").on("click", function () {
+        console.log("Clearing requested artists");
+        clearArtists();
+        $('[fx-element="agencyErrorWrapper"]').css('display', 'none');
+        let radioButton = $('input[name="Type-of-Enquiry"][value="Event Services"]');
+        radioButton.click();
+        $("[form-first-btn]").hide();
+        $("[form-first-btn-enabled]").show();
+    });
     // Add an event listener to the radio group
-    $('input[name="Type-of-Enquiry"]').change(function () {
+    $('input[name="Type-of-Enquiry"]').change(function (event) {
         console.log("Type of Enquiry changed. value: ", $(this).val());
         let value = $(this).val();
+
+        $('[fx-element="agencyErrorWrapper"]').css('display', 'none');
 
         if (value === "Artist Booking") {
             console.log("Artist Booking selected");
@@ -460,6 +486,18 @@ function handleFormSectionsDynamic() {
             console.log("Event Services selected");
             $("[form-section-artist-bookings]").hide();
             $("[form-section-event-services]").show();
+            // Check if the window.requestedArtists array contains any items
+            if (window.requestedArtists.length > 0) {
+                // Prevent the radio item from being checked
+                event.preventDefault();
+
+                // Display an error message
+                $('[fx-element="agencyErrorWrapper"]').css('display', 'block');
+                $('[fx-element="agencyErrorText"]').text('Error: Cannot select "Event Services" when there are artists in the booking form. Either remove the artists using the link below or select "Both" to proceed.');
+                $("[form-first-btn]").show();
+                $("[form-first-btn-enabled]").hide();
+                return;
+            }
         } else if (value === "Both") {
             console.log("Both selected");
             $("[form-section-artist-bookings]").show();
@@ -520,3 +558,124 @@ function handleFormArtistCards() {
     // Set display: none on the first template
     $("[form-artist-template]").first().css("display", "none");
 }
+
+
+// ---- Artist Form Auto-Complete ---- 
+function prepareAutocompleteForm() {
+    // Collection List Wrapper
+    const listWrap = $('[fx-element="listWrap"]');
+    // Search Input Field
+    const searchBar = $('[fx-element="searchBar"]');
+    // search items
+    const searchItems = $('[fx-element="listItem"]');
+
+    const placeholderUrl =
+    "https://assets-global.website-files.com/plugins/Basic/assets/placeholder.60f9b1840c.svg";
+
+    // Add artists to state on item click
+    searchItems.find('[fx-element="artistLink"]').on('click', function() {
+        console.log('selected artist: ', $(this).find('[fx-element="artistName"]').text());
+        
+        // Get the artist details from the children of the clicked item
+        const artistName = $(this).find('[fx-element="artistName"]').text();
+        const artistType = $(this).find('[fx-element="artistType"]').text();
+        const artistSlug = $(this).find('[fx-element="artistSlug"]').text();
+        const artistImage = $(this).find('[fx-element="artistImage"]').attr('src');
+        const artistImageBackup = $(this).find('[fx-element="artistImageBackup"]').attr('src');
+
+        var selectedImage = "";
+        if (artistImage === "" || artistImage === placeholderUrl) {
+            if (artistImageBackup === "" || artistImageBackup === placeholderUrl) {
+                selectedImage = "";
+            } else {
+                selectedImage = artistImageBackup;
+            }
+        } else {
+            selectedImage = artistImage;
+        }
+
+        // Call the 'addArtist' function to add the artist to the selected artists
+        addArtist(
+            artistName,
+            selectedImage,
+            "",
+            artistType,
+            artistSlug
+        );
+
+        // clear search bar
+        searchBar.val('');
+        // all items visible
+        searchItems.each(function() {
+            $(this).css('display', 'block');
+        });
+    });
+
+    // Search bar function
+    searchBar.on('keyup', function() {
+        const term = $(this).val().toLowerCase();
+
+        searchItems.each(function() {
+            const text = $(this).find('[fx-element="artistName"]').first().text();
+            console.log('text:', text, 'term:', term, 'index:', text.toLowerCase().indexOf(term));
+            if(text.toLowerCase().indexOf(term) != -1) {
+                $(this).css('display', 'block');
+            } else {
+                $(this).css('display', 'none');
+            }
+        });
+    });
+
+    // Open list when search bar is focused
+    searchBar.on('focusin', function() {
+        listWrap.css({
+            'maxHeight': '400px',
+            'paddingTop': '36px',
+            'paddingBottom': '24px'
+        });
+    });
+
+    // Close list when search bar is focused
+    searchBar.on('focusout', function() {
+        listWrap.css({
+            'maxHeight': '0',
+            'paddingTop': '0',
+            'paddingBottom': '0'
+        });
+    });
+}
+
+
+// --- Stats Section Animation ---
+function prepareStatsSectionAnimation() {
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.5 // Adjust as needed, this controls when the animation triggers
+    };
+
+    const observer = new IntersectionObserver(function(entries, observer) {
+        entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            startCounting(entry.target);
+            observer.unobserve(entry.target);
+        }
+        });
+    }, observerOptions);
+
+    $('.percentage-count-animation').each(function() {
+        observer.observe(this);
+    });
+
+    function startCounting(element) {
+        $(element).prop('Counter', 0).animate({
+        Counter: $(element).text()
+        }, {
+        duration: 4000,
+        easing: 'swing',
+        step: function(now) {
+            $(element).text(Math.ceil(now));
+        }
+        });
+    }
+};
