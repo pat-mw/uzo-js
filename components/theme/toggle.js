@@ -4,6 +4,7 @@
  * Released under the MIT License
  * Released on: November 28, 2023
  */
+import { gsap } from "gsap";
 
 export function colorModeToggle() {
   function attr(defaultVal, attrVal) {
