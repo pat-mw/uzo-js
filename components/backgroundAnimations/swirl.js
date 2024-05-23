@@ -1,6 +1,7 @@
 "use strict";
-import { SimplexNoise } from "./simplexNoise";
+import "./simplexNoise";
 import './bgAnimUtil';
+
 const particleCount = 700;
 const particlePropCount = 9;
 const particlePropsLength = particleCount * particlePropCount;
