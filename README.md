@@ -19,6 +19,8 @@ Whilst working in development mode: Do *not* publish the site to main domain, th
 Whilst developing: Your custom code will be written in the 'app.js' file ONLY
 There might be a way of doing this different but for now, our server which is executed using parcel, is only publishing the app.js file
 
+run `npm install` or `bun install` to install dependencies
+
 run `npm start` or `bun start` to run local server
 
 in webflow: rather than coding inside the editor, paste the following script tag in during development:
