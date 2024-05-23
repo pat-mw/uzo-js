@@ -1,10 +1,3 @@
-# Farrago-js
-
-This is a local development tool to pair with Webflow development which makes it easier to work with custom JS code in the editor, and also a cleaner way to host the production code
-
-Motivation: Working on our 'agency' page - I reached the 10,000 character limit on custom code so had to find an alternative
-This not only solved that problem, letting us host the script on github, but also is an infinitely better developer experience.
-
 ## IMPORTANT
 There are two modes when using this repo.
 
