@@ -1,56 +1,41 @@
 "use strict";
 
-import SimplexNoise from "./simplexNoise";
-import {
-  cos,
-  sin,
-  TAU,
-  rand,
-  randRange,
-  fadeInOut,
-  lerp,
-} from "./bgAnimUtil";
+import { cos, sin, HALF_PI, rand, fadeInOut, angle, lerp } from "./bgAnimUtil";
 
 const particleCount = 700;
 const particlePropCount = 9;
 const particlePropsLength = particleCount * particlePropCount;
-const rangeY = 100;
-const baseTTL = 50;
-const rangeTTL = 150;
+const baseTTL = 100;
+const rangeTTL = 500;
 const baseSpeed = 0.1;
-const rangeSpeed = 2;
-const baseRadius = 1;
-const rangeRadius = 4;
-const baseHue = 350;
+const rangeSpeed = 1;
+const baseSize = 2;
+const rangeSize = 10;
+const baseHue = 170;
 const rangeHue = 50;
-const noiseSteps = 8;
-const xOff = 0.00125;
-const yOff = 0.00125;
-const zOff = 0.0005;
 // const backgroundColor = "hsla(260,40%,5%,1)";
 const backgroundColor = getComputedStyle(document.documentElement)
   .getPropertyValue('--color--tertiary')
   .trim(); // trim is used to remove spaces from the start and end
+
 
 let container;
 let canvas;
 let ctx;
 let center;
 let tick;
-let simplex;
 let particleProps;
 
-const CANVAS_QUERY = ".bg-effect-canvas[bg-effect='swirl']";
+const CANVAS_QUERY = ".bg-effect-canvas[bg-effect='coalesce']";
 
 function setup() {
-  console.log("[bg-effect-swirl] initialising.");
+  console.log("[bg-effect-coalesce] initialising.");
   try {
     createCanvas();
   } catch (e) {
-    console.log("[bg-effect-swirl] error creating canvas:", e);
+    console.log("[bg-effect-coalesce] error creating canvas:", e);
     return;
   }
-
   resize();
   initParticles();
   draw();
@@ -58,7 +43,6 @@ function setup() {
 
 function initParticles() {
   tick = 0;
-  simplex = new SimplexNoise();
   particleProps = new Float32Array(particlePropsLength);
 
   let i;
@@ -69,19 +53,20 @@ function initParticles() {
 }
 
 function initParticle(i) {
-  let x, y, vx, vy, life, ttl, speed, radius, hue;
+  let theta, x, y, vx, vy, life, ttl, speed, size, hue;
 
   x = rand(canvas.a.width);
-  y = center[1] + randRange(rangeY);
-  vx = 0;
-  vy = 0;
+  y = rand(canvas.a.height);
+  theta = angle(x, y, center[0], center[1]);
+  vx = cos(theta) * 6;
+  vy = sin(theta) * 6;
   life = 0;
   ttl = baseTTL + rand(rangeTTL);
   speed = baseSpeed + rand(rangeSpeed);
-  radius = baseRadius + rand(rangeRadius);
+  size = baseSize + rand(rangeSize);
   hue = baseHue + rand(rangeHue);
 
-  particleProps.set([x, y, vx, vy, life, ttl, speed, radius, hue], i);
+  particleProps.set([x, y, vx, vy, life, ttl, speed, size, hue], i);
 }
 
 function drawParticles() {
@@ -101,22 +86,24 @@ function updateParticle(i) {
     i7 = 6 + i,
     i8 = 7 + i,
     i9 = 8 + i;
-  let n, x, y, vx, vy, life, ttl, speed, x2, y2, radius, hue;
+  let x, y, theta, vx, vy, life, ttl, speed, x2, y2, size, hue;
 
   x = particleProps[i];
   y = particleProps[i2];
-  n = simplex.noise3D(x * xOff, y * yOff, tick * zOff) * noiseSteps * TAU;
-  vx = lerp(particleProps[i3], cos(n), 0.5);
-  vy = lerp(particleProps[i4], sin(n), 0.5);
+  let aspectRatio = canvas.a.width / canvas.a.height;
+  theta = angle(x, y, center[0], center[1]) + 0.75 * HALF_PI;
+  vx = lerp(particleProps[i3], 2 * cos(theta), 0.05);
+  vy = lerp(particleProps[i4], 2 * sin(theta), 0.05);
+
   life = particleProps[i5];
   ttl = particleProps[i6];
   speed = particleProps[i7];
-  x2 = x + vx * speed;
+  x2 = x + (vx * speed) / aspectRatio;
   y2 = y + vy * speed;
-  radius = particleProps[i8];
+  size = particleProps[i8];
   hue = particleProps[i9];
 
-  drawParticle(x, y, x2, y2, life, ttl, radius, hue);
+  drawParticle(x, y, theta, life, ttl, size, hue);
 
   life++;
 
@@ -126,29 +113,28 @@ function updateParticle(i) {
   particleProps[i4] = vy;
   particleProps[i5] = life;
 
-  (checkBounds(x, y) || life > ttl) && initParticle(i);
+  life > ttl && initParticle(i);
 }
 
-function drawParticle(x, y, x2, y2, life, ttl, radius, hue) {
+function drawParticle(x, y, theta, life, ttl, size, hue) {
+  let xRel = x - 0.5 * size,
+    yRel = y - 0.5 * size;
+
   ctx.a.save();
   ctx.a.lineCap = "round";
-  ctx.a.lineWidth = radius;
+  ctx.a.lineWidth = 1;
   ctx.a.strokeStyle = `hsla(${hue},100%,60%,${fadeInOut(life, ttl)})`;
   ctx.a.beginPath();
-  ctx.a.moveTo(x, y);
-  ctx.a.lineTo(x2, y2);
-  ctx.a.stroke();
+  ctx.a.translate(xRel, yRel);
+  ctx.a.rotate(theta);
+  ctx.a.translate(-xRel, -yRel);
+  ctx.a.strokeRect(xRel, yRel, size, size);
   ctx.a.closePath();
   ctx.a.restore();
 }
 
-function checkBounds(x, y) {
-  return x > canvas.a.width || x < 0 || y > canvas.a.height || y < 0;
-}
-
 function createCanvas() {
   container = document.querySelector(CANVAS_QUERY);
-  console.log("[bg-effect-swirl] found target container:", container);
   canvas = {
     a: document.createElement("canvas"),
     b: document.createElement("canvas"),
@@ -170,7 +156,6 @@ function createCanvas() {
 
 function resize() {
   const { offsetWidth: innerWidth, offsetHeight: innerHeight } = container;
-
   canvas.a.width = innerWidth;
   canvas.a.height = innerHeight;
 
@@ -199,7 +184,7 @@ function renderGlow() {
   ctx.b.restore();
 }
 
-function renderToScreen() {
+function render() {
   ctx.b.save();
   ctx.b.globalCompositeOperation = "lighter";
   ctx.b.drawImage(canvas.a, 0, 0);
@@ -216,7 +201,7 @@ function draw() {
 
   drawParticles();
   renderGlow();
-  renderToScreen();
+  render();
 
   window.requestAnimationFrame(draw);
 }
